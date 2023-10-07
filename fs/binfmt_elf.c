@@ -720,7 +720,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
 	if (memcmp(loc.elf_ex.e_ident, ELFMAG, SELFMAG) != 0)
 		goto out;
 
-	if (loc.elf_ex.e_type != ET_EXEC && loc->elf_ex.e_type != ET_DYN)
+	if (loc.elf_ex.e_type != ET_EXEC && loc.elf_ex.e_type != ET_DYN)
 		goto out;
 	if (!elf_check_arch(&loc.elf_ex))
 		goto out;
@@ -1135,7 +1135,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
 		 * growing down), and into the unused ELF_ET_DYN_BASE region.
 		 */
 		if (IS_ENABLED(CONFIG_ARCH_HAS_ELF_RANDOMIZE) &&
-		    loc->elf_ex.e_type == ET_DYN && !interpreter)
+		    loc.elf_ex.e_type == ET_DYN && !interpreter)
 			current->mm->brk = current->mm->start_brk =
 				ELF_ET_DYN_BASE;
 
