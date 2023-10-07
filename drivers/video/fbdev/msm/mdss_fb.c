@@ -3,7 +3,7 @@
  * Core MDSS framebuffer driver.
  *
  * Copyright (C) 2007 Google Incorporated
- * Copyright (c) 2008-2020, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2008-2023, The Linux Foundation. All rights reserved.
  */
 
 #define pr_fmt(fmt)	"%s: " fmt, __func__
@@ -16,6 +16,14 @@
 #include <linux/device.h>
 #include <linux/dma-mapping.h>
 #include <linux/dma-buf.h>
+#include <linux/cpu_input_boost.h>
+#include <sync.h>
+#include <sw_sync.h>
+#include <linux/interrupt.h>
+#include <linux/wakelock.h>
+
+#include <linux/mdss_io_util.h>
+#include <linux/wakelock.h>
 #include <linux/fb.h>
 #include <linux/init.h>
 #include <linux/ioport.h>
@@ -5052,6 +5060,7 @@ int mdss_fb_do_ioctl(struct fb_info *info, unsigned int cmd,
 		ret = mdss_fb_mode_switch(mfd, dsi_mode);
 		break;
 	case MSMFB_ATOMIC_COMMIT:
+		cpu_input_boost_kick();
 		ret = mdss_fb_atomic_commit_ioctl(info, argp, file);
 		break;
 
