@@ -1248,7 +1248,7 @@ static void gc_worker(struct work_struct *work)
 					knox_collect_conntrack_data(tmp, NCM_FLOW_TYPE_INTERMEDIATE, 20);
 				}
 			}
-            #endif
+            		#endif
 
 			if (nf_conntrack_max95 == 0 || gc_worker_skip_ct(tmp))
 				continue;
