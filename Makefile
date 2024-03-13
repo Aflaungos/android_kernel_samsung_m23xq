@@ -407,10 +407,6 @@ PYTHON2		= python2
 PYTHON3		= python3
 CHECK		= sparse
 
-# Use the wrapper for the compiler.  This wrapper scans for new
-# warnings and causes the build to stop upon encountering them
-CC		= $(PYTHON) $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
-
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void -Wno-unknown-attribute $(CF)
 NOSTDINC_FLAGS  =
@@ -535,7 +531,6 @@ CLANG_FLAGS	+= -no-integrated-as
 endif
 GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
 CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
-endif
 CLANG_FLAGS	+= -Werror=unknown-warning-option
 CLANG_FLAGS	+= $(call cc-option, -Wno-misleading-indentation)
 CLANG_FLAGS	+= $(call cc-option, -Wno-bool-operation)
@@ -544,11 +539,6 @@ CLANG_FLAGS	+= $(call cc-option, -Wno-unsequenced)
 KBUILD_CFLAGS	+= $(CLANG_FLAGS)
 KBUILD_AFLAGS	+= $(CLANG_FLAGS)
 export CLANG_FLAGS
-endif
-ifeq ($(ld-name),lld)
-KBUILD_CFLAGS += -fuse-ld=lld
-endif
-KBUILD_CPPFLAGS += -Qunused-arguments
 endif
 
 RETPOLINE_CFLAGS_GCC := -mindirect-branch=thunk-extern -mindirect-branch-register
@@ -1038,12 +1028,6 @@ CHECKFLAGS += $(if $(CONFIG_CPU_BIG_ENDIAN),-mbig-endian,-mlittle-endian)
 
 # the checker needs the correct machine size
 CHECKFLAGS += $(if $(CONFIG_64BIT),-m64,-m32)
-
-ifneq ($(shell secgetspf SEC_PRODUCT_FEATURE_COMMON_CONFIG_SEP_VERSION),)
-      SEP_MAJOR_VERSION := $(shell secgetspf SEC_PRODUCT_FEATURE_COMMON_CONFIG_SEP_VERSION | cut -f1 -d.)
-      SEP_MINOR_VERSION := $(shell secgetspf SEC_PRODUCT_FEATURE_COMMON_CONFIG_SEP_VERSION | cut -f2 -d.)
-      export KBUILD_SEP_VERSION := -DSEP_KVERSION=$(SEP_MAJOR_VERSION)$(SEP_MINOR_VERSION)
-endif
 
 # Default kernel image to build when no specific target is given.
 # KBUILD_IMAGE may be overruled on the command line or
@@ -1820,7 +1804,6 @@ export_report:
 	$(PERL) $(srctree)/scripts/export_report.pl
 
 endif #ifeq ($(config-targets),1)
-endif #ifeq ($(mixed-targets),1)
 
 PHONY += checkstack kernelrelease kernelversion image_name
 
@@ -1932,6 +1915,8 @@ cmd_files := $(wildcard .*.cmd $(foreach f,$(sort $(targets)),$(dir $(f)).$(notd
 ifneq ($(cmd_files),)
   $(cmd_files): ;	# Do not try to update included dependency files
   include $(cmd_files)
+endif
+
 endif	# skip-makefile
 
 PHONY += FORCE
