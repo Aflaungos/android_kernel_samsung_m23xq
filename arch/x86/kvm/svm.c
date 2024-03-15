@@ -1791,25 +1791,9 @@ static void sev_asid_free(struct kvm *kvm)
 	__sev_asid_free(sev->asid);
 }
 
-static void sev_decommission(unsigned int handle)
-{
-	struct sev_data_decommission *decommission;
-
-	if (!handle)
-		return;
-
-	decommission = kzalloc(sizeof(*decommission), GFP_KERNEL);
-	if (!decommission)
-		return;
-
-	decommission->handle = handle;
-	sev_guest_decommission(decommission, NULL);
-
-	kfree(decommission);
-}
-
 static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
 {
+	struct sev_data_decommission *decommission;
 	struct sev_data_deactivate *data;
 
 	if (!handle)
@@ -1827,7 +1811,15 @@ static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
 	sev_guest_df_flush(NULL);
 	kfree(data);
 
-	sev_decommission(handle);
+	decommission = kzalloc(sizeof(*decommission), GFP_KERNEL);
+	if (!decommission)
+		return;
+
+	/* decommission handle */
+	decommission->handle = handle;
+	sev_guest_decommission(decommission, NULL);
+
+	kfree(decommission);
 }
 
 static struct page **sev_pin_memory(struct kvm *kvm, unsigned long uaddr,
@@ -1962,7 +1954,6 @@ static void sev_vm_destroy(struct kvm *kvm)
 		list_for_each_safe(pos, q, head) {
 			__unregister_enc_region_locked(kvm,
 				list_entry(pos, struct enc_region, list));
-			cond_resched();
 		}
 	}
 
@@ -6476,10 +6467,8 @@ static int sev_launch_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
 
 	/* Bind ASID to this guest */
 	ret = sev_bind_asid(kvm, start->handle, error);
-	if (ret) {
-		sev_decommission(start->handle);
+	if (ret)
 		goto e_free_session;
-	}
 
 	/* return handle to userspace */
 	params.handle = start->handle;
