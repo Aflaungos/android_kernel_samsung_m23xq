@@ -3446,10 +3446,8 @@ nfsd4_setclientid_confirm(struct svc_rqst *rqstp,
 			status = nfserr_clid_inuse;
 			if (client_has_state(old)
 					&& !same_creds(&unconf->cl_cred,
-							&old->cl_cred)) {
-				old = NULL;
+							&old->cl_cred))
 				goto out;
-			}
 			status = mark_client_expired_locked(old);
 			if (status) {
 				old = NULL;
