@@ -1685,30 +1685,15 @@ static int ax88179_reset(struct usbnet *dev)
 	return 0;
 }
 
-static int ax88179_stop(struct ax_device *axdev)
+static int ax88179_stop(struct usbnet *dev)
 {
-	u16 reg16;
-	u8 reg8;
+	u16 tmp16;
 
-	reg16 = 0;
-	ax_write_cmd_nopm(axdev, AX_ACCESS_MAC, AX_PHYPWR_RSTCTL, 2, 2, &reg16);
-
-	msleep(20);
-
-	reg16 = AX_PHYPWR_RSTCTL_IPRL;
-	ax_write_cmd_nopm(axdev, AX_ACCESS_MAC, AX_PHYPWR_RSTCTL, 2, 2, &reg16);
-	msleep(500);
-
-	ax88179_AutoDetach(axdev, 1);
-
-	ax_read_cmd_nopm(axdev, AX_ACCESS_MAC,  AX_CLK_SELECT, 1, 1, &reg8, 0);
-	reg8 |= AX_CLK_SELECT_ACS | AX_CLK_SELECT_BCS;
-	ax_write_cmd_nopm(axdev, AX_ACCESS_MAC, AX_CLK_SELECT, 1, 1, &reg8);
-	msleep(200);
-
-	reg16 = AX_RX_CTL_START | AX_RX_CTL_AP |
-		AX_RX_CTL_AMALL | AX_RX_CTL_AB;
-	ax_write_cmd_nopm(axdev, AX_ACCESS_MAC, AX_RX_CTL, 2, 2, &reg16);
+	ax88179_read_cmd(dev, AX_ACCESS_MAC, AX_MEDIUM_STATUS_MODE,
+			 2, 2, &tmp16);
+	tmp16 &= ~AX_MEDIUM_RECEIVE_EN;
+	ax88179_write_cmd(dev, AX_ACCESS_MAC, AX_MEDIUM_STATUS_MODE,
+			  2, 2, &tmp16);
 
 	return 0;
 }
