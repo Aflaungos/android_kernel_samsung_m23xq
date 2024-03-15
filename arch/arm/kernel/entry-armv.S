@@ -1067,9 +1067,9 @@ vector_bhb_loop8_\name:
 
 	@ bhb workaround
 	mov	r0, #8
-3:	b	. + 4
+1:	b	. + 4
 	subs	r0, r0, #1
-	bne	3b
+	bne	1b
 	dsb
 	isb
 	b	2b
