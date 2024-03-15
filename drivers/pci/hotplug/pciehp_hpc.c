@@ -576,8 +576,6 @@ read_status:
 	 */
 	if (ctrl->power_fault_detected)
 		status &= ~PCI_EXP_SLTSTA_PFD;
-	else if (status & PCI_EXP_SLTSTA_PFD)
-		ctrl->power_fault_detected = true;
 
 	events |= status;
 	if (!events) {
@@ -587,7 +585,7 @@ read_status:
 	}
 
 	if (status) {
-		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, status);
+		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
 
 		/*
 		 * In MSI mode, all event bits must be zero before the port
@@ -662,7 +660,8 @@ static irqreturn_t pciehp_ist(int irq, void *dev_id)
 	}
 
 	/* Check Power Fault Detected */
-	if (events & PCI_EXP_SLTSTA_PFD) {
+	if ((events & PCI_EXP_SLTSTA_PFD) && !ctrl->power_fault_detected) {
+		ctrl->power_fault_detected = 1;
 		ctrl_err(ctrl, "Slot(%s): Power fault\n", slot_name(slot));
 		pciehp_set_attention_status(slot, 1);
 		pciehp_green_led_off(slot);
