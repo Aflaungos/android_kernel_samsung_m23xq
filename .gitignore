@@ -1,1 +1,3 @@
 out/
+build_log.txt
+build_log_clang10.txt
