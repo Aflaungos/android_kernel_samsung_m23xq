@@ -8,6 +8,7 @@
 #include <net/af_unix.h>
 #include <net/scm.h>
 #include <linux/init.h>
+#include <linux/sched/signal.h>
 
 #include "scm.h"
 
