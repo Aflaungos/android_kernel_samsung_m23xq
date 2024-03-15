@@ -1685,18 +1685,16 @@ static int ax88179_reset(struct usbnet *dev)
 	return 0;
 }
 
-static int ax88179_stop(struct usbnet *dev)
+static int ax88179_stop(struct ax_device *axdev)
 {
 	u16 reg16;
 	u8 reg8;
 
 	reg16 = 0;
 	ax_write_cmd_nopm(axdev, AX_ACCESS_MAC, AX_PHYPWR_RSTCTL, 2, 2, &reg16);
-#if KERNEL_VERSION(2, 6, 36) <= LINUX_VERSION_CODE
-	usleep_range(1000, 2000);
-#else
+
 	msleep(20);
-#endif
+
 	reg16 = AX_PHYPWR_RSTCTL_IPRL;
 	ax_write_cmd_nopm(axdev, AX_ACCESS_MAC, AX_PHYPWR_RSTCTL, 2, 2, &reg16);
 	msleep(500);
