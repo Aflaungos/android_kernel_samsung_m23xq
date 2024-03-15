@@ -562,12 +562,12 @@ static int verity_verify_io(struct dm_verity_io *io)
 			}
 #ifdef SEC_HEX_DEBUG
 			if (verity_handle_err_hex_debug(v, DM_VERITY_BLOCK_TYPE_DATA,
-					cur_block, io, &start))
+					cur_block, io, &start)) {
 				add_corrupted_blks();
-		}
 #else
 		else {
 			if (bio->bi_status) {
+#endif
 				/*
 				 * Error correction failed; Just return error
 				 */
@@ -576,8 +576,7 @@ static int verity_verify_io(struct dm_verity_io *io)
 			if (verity_handle_err(v, DM_VERITY_BLOCK_TYPE_DATA,
 					      cur_block))
 					return -EIO;
-		}
-#endif
+			}
 	}
 
 	return 0;
