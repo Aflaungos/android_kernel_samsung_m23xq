@@ -2893,7 +2893,9 @@ static void dwc2_hsotg_epint(struct dwc2_hsotg *hsotg, unsigned int idx,
 
 		/* In DDMA handle isochronous requests separately */
 		if (using_desc_dma(hsotg) && hs_ep->isochronous) {
-			dwc2_gadget_complete_isoc_request_ddma(hs_ep);
+			/* XferCompl set along with BNA */
+			if (!(ints & DXEPINT_BNAINTR))
+				dwc2_gadget_complete_isoc_request_ddma(hs_ep);
 		} else if (dir_in) {
 			/*
 			 * We get OutDone from the FIFO, so we only
