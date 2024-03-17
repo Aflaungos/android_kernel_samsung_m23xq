@@ -28,10 +28,13 @@ jobs:
         defconfig: vendor/m23xq_eur_open_defconfig
         image: Image
 
+    - name: Check zipper dir
+      run: ls -a
+
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
           name: "Kernel For Galaxy M23"
           files: |
-            ${{ env.ZIP_NAME }}.zip
+            $GITHUB_WORKSPACE/zipper/${{ env.ZIP_NAME }}.zip
           tag_name: Galaxy_M23
