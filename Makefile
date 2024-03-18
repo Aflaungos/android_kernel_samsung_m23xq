@@ -523,7 +523,6 @@ CLANG_FLAGS	+= --target=$(CLANG_TARGET_FLAGS)
 endif # CLANG_TARGET_FLAGS
 else
 CLANG_FLAGS	+= --target=$(notdir $(CROSS_COMPILE:%-=%))
-endif
 endif # CROSS_COMPILE
 
 ifneq ($(LLVM_IAS),1)
@@ -1804,6 +1803,7 @@ export_report:
 	$(PERL) $(srctree)/scripts/export_report.pl
 
 endif #ifeq ($(config-targets),1)
+endif #ifeq ($(mixed-targets),1)
 
 PHONY += checkstack kernelrelease kernelversion image_name
 
