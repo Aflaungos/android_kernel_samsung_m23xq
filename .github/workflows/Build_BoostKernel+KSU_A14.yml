@@ -2,7 +2,7 @@ name: Build BoostKernel A14 with KernelSU
 on:
   workflow_dispatch:
   schedule:
-    - cron: "10 12 * * *"
+    - cron: "0 10 * * *"
 jobs:
   build:
     strategy:
@@ -49,18 +49,10 @@ jobs:
       - name: Checkout Anykernel
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           submodules: true
           repository: Aflaungos/AnyKernel3
           ref: m23xq
-          path: anykernel     
-          
-      - name: Setup Ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: Build-KernelSU-${{ matrix.device }}
-          save: ${{ github.event_name != 'pull_request' }}
-          max-size: 2G
+          path: anykernel
           
       - name: Build Kernel
         working-directory: kernel-source
@@ -75,10 +67,9 @@ jobs:
           export KERNEL_MAKE_ENV="DTC_EXT=$(pwd)/tools/dtc CONFIG_BUILD_ARM64_DT_OVERLAY=y"
           output_dir=out
           date=$(date +"%Y%m%d%H%M")
-          export PATH="/usr/lib/ccache:$PATH"
           echo "date=$date" >> $GITHUB_ENV
           echo "Building kernel with $args"  
-          make -C $(pwd) O=out $KERNEL_MAKE_ENV CC="ccache clang" vendor/m23xq_eur_open_defconfig && make O=out $KERNEL_MAKE_ENV CC="ccache clang" -j$(grep -c ^processor /proc/cpuinfo)
+          make -C $(pwd) O=out $KERNEL_MAKE_ENV CC="clang" vendor/m23xq_eur_open_defconfig && make O=out $KERNEL_MAKE_ENV CC="clang" -j$(grep -c ^processor /proc/cpuinfo)
           
       - name: Upload BoostKernel-${{ matrix.device }}
         uses: actions/upload-artifact@v3
@@ -118,16 +109,16 @@ jobs:
             ${{ env.ZIP_NAME }}.zip
           tag_name: ${{ github.run_number }}-${{ github.ref }}-${{ matrix.device }}
 
-      - name: Start NotifierBot F23
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.CHAT_ID_F23 }}
-          token: ${{ secrets.BOT_TOKEN }}
-          message: |
-            Download the latest BoostKernel update for Samsung Galaxy F23!
-            New KernelSU Update! ${{ env.ksu_version }}
-            
-            DOWNLOAD: https://github.com/${{ github.repository }}/releases/
+#      - name: Start NotifierBot F23
+#        uses: appleboy/telegram-action@master
+#        with:
+#          to: ${{ secrets.CHAT_ID_F23 }}
+#          token: ${{ secrets.BOT_TOKEN }}
+#          message: |
+#            Download the latest BoostKernel update for Samsung Galaxy F23!
+#            New KernelSU Update! ${{ env.ksu_version }}
+#            
+#            DOWNLOAD: https://github.com/${{ github.repository }}/releases/
 
 #      - name: Start NotifierBot M23
 #        uses: appleboy/telegram-action@master
