@@ -7,7 +7,7 @@ jobs:
   build:
     strategy:
       matrix:
-        device: [m23xq]
+        device: [Samsung Galaxy M23 (m23xq)]
         
     name: Build Kernel For ${{ matrix.device }}
     runs-on: ubuntu-latest
@@ -81,7 +81,7 @@ jobs:
         working-directory: anykernel
         run: |
           cp -f $GITHUB_WORKSPACE/kernel-source/out/arch/arm64/boot/Image .
-          ZIP_NAME="Kernel-${{ matrix.device }}"
+          ZIP_NAME="BoostKernel_${{ matrix.device }}"
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
           zip -r "$ZIP_NAME.zip" *
           mv "$ZIP_NAME.zip" $GITHUB_WORKSPACE
@@ -91,13 +91,6 @@ jobs:
         with:
           name: ${{ env.ZIP_NAME }}
           path: anykernel/*
-          
-      - name: Creating Config Info
-        run: |
-          export ksu_version=$(git -C $GITHUB_WORKSPACE/kernel-source/KernelSU rev-parse --short HEAD)
-          echo "
-          For Samsung Galaxy M23/F23 5G (m23xq)
-          " >> INFO.txt
       
       - name: Release
         if: success()
@@ -108,28 +101,6 @@ jobs:
           files: |
             ${{ env.ZIP_NAME }}.zip
           tag_name: ${{ github.run_number }}-${{ github.ref }}-${{ matrix.device }}
-
-#      - name: Start NotifierBot F23
-#        uses: appleboy/telegram-action@master
-#        with:
-#          to: ${{ secrets.CHAT_ID_F23 }}
-#          token: ${{ secrets.BOT_TOKEN }}
-#          message: |
-#            Download the latest BoostKernel update for Samsung Galaxy F23!
-#            New KernelSU Update! ${{ env.ksu_version }}
-#            
-#            DOWNLOAD: https://github.com/${{ github.repository }}/releases/
-
-#      - name: Start NotifierBot M23
-#        uses: appleboy/telegram-action@master
-#        with:
-#          to: ${{ secrets.CHAT_ID_M23 }}
-#          token: ${{ secrets.BOT_TOKEN }}
-#          message: |
-#            Download the latest BoostKernel update for Samsung Galaxy M23!
-#            New KernelSU Update! ${{ env.ksu_version }}
-#            
-#            DOWNLOAD: https://github.com/${{ github.repository }}/releases/
           
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2
