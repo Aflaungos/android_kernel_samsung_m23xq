@@ -2,8 +2,6 @@ name: Update KernelSU for m23xq A14
 on:
   workflow_call:
   workflow_dispatch:
-  schedule:
-    - cron: "0 12 * * *"
 
 jobs:
   update:
